@@ -8,6 +8,7 @@ import {
 } from "./GithubActionTypes";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { getPages } from "../../utility/getPages";
 
 const GITHUB_URL = "https://api.github.com";
 const github = axios.create({
@@ -19,6 +20,7 @@ const GithubContext = createContext();
 export const GithubProvider = ({ children }) => {
     const initialState = {
         users: [],
+        paginateInfo: {},
         user: {},
         repos: [],
         loading: false,
@@ -27,15 +29,23 @@ export const GithubProvider = ({ children }) => {
     const [state, dispatch] = useReducer(githubReducer, initialState);
     const navigate = useNavigate();
 
-    const searchUsers = async (text) => {
+    const searchUsers = async (userName,pageNo=1) => {
         try{
             dispatch({ type: SET_LOADING })
             const params = new URLSearchParams({
-                q: text,
+                q: userName,
+                page: pageNo,
             });
             const response = await github.get(`/search/users?${params}`);
+            const paginateInfo = getPages(response.headers.link);
             const { items } = response.data;
-            dispatch({ type: GET_USERS, payload: items});
+            dispatch({ 
+                type: GET_USERS, 
+                payload: {
+                    items,
+                    paginateInfo
+                }
+            });
         }catch(err){
             dispatch({ type: CLEAR_LOADING });
         }

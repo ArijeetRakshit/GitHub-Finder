@@ -9,7 +9,12 @@ import {
 const githubReducer = (state, action) => {
     switch (action.type){
         case GET_USERS :
-            return { ...state, users: action.payload, loading: false }
+            return { 
+                ...state, 
+                users: action.payload.items, 
+                paginateInfo: action.payload.paginateInfo, 
+                loading: false 
+            }
         case GET_USER_REPOS :
             return {
                 ...state,
@@ -18,7 +23,7 @@ const githubReducer = (state, action) => {
                 loading: false,
             }
         case CLEAR_USERS :
-            return { ...state, users: [] }
+            return { ...state, users: [], paginateInfo: {} }
         case SET_LOADING :
             return { ...state, loading: true }
         case CLEAR_LOADING :
